@@ -1,7 +1,7 @@
 package com.rentalhub.backend.config
 
+import com.rentalhub.backend.auth.AppUserDetailsService
 import com.rentalhub.backend.auth.JwtAuthenticationFilter
-import com.rentalhub.backend.landlord.LandlordUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 class SecurityConfig(
-    private val landlordUserDetailsService: LandlordUserDetailsService,
+    private val userDetailsServiceImpl: AppUserDetailsService,
     private val jwtAuthenticationFilter: JwtAuthenticationFilter
 ) {
 
@@ -26,7 +26,7 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun userDetailsService(): UserDetailsService = landlordUserDetailsService
+    fun userDetailsService(): UserDetailsService = userDetailsServiceImpl
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager =
@@ -40,9 +40,7 @@ class SecurityConfig(
                 it.requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated()
             }
-            .sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
     }
