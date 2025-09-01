@@ -1,19 +1,26 @@
 package com.rentalhub.backend.auth
 
-import org.springframework.stereotype.Component
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import java.util.*
-
+import java.util.Base64
 
 @Component
-class JwtUtil {
-    private val key = Keys.secretKeyFor(SignatureAlgorithm.HS256)
+class JwtUtil(
+    @Value("\${security.jwt.secret}") private val secretB64: String,
+    @Value("\${security.jwt.ttl-hours:24}") private val ttlHours: Long
+) {
+    // Build the HMAC key once from the Base64 secret
+    private val key by lazy {
+        val bytes = Base64.getDecoder().decode(secretB64)
+        Keys.hmacShaKeyFor(bytes)
+    }
 
-    fun generateToken(email: String, role: String): String { //lets make roll an enum
+    fun generateToken(email: String, role: String): String {
         val now = Date()
-        val expiry = Date(now.time + 1000 * 60 * 60 * 24) // 24h
+        val expiry = Date(now.time + ttlHours * 60 * 60 * 1000)
 
         return Jwts.builder()
             .setSubject(email)
@@ -25,6 +32,10 @@ class JwtUtil {
     }
 
     fun extractEmail(token: String): String =
-        Jwts.parserBuilder().setSigningKey(key).build()
-            .parseClaimsJws(token).body.subject
+        Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(token)
+            .body
+            .subject
 }
