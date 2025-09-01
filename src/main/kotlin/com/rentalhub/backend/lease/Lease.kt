@@ -2,6 +2,7 @@ package com.rentalhub.backend.lease
 
 import com.rentalhub.backend.payment.Payment
 import com.rentalhub.backend.tenant.Tenant
+import com.rentalhub.backend.unit.RentalUnit
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -25,7 +26,7 @@ data class Lease(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_id")
-    val unit: Unit,
+    val unit: RentalUnit,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id")

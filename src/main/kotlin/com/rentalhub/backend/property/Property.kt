@@ -1,6 +1,7 @@
 package com.rentalhub.backend.property
 
 import com.rentalhub.backend.landlord.Landlord
+import com.rentalhub.backend.unit.RentalUnit
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -24,5 +25,6 @@ data class Property(
     val landlord: Landlord,
 
     @OneToMany(mappedBy = "property", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val units: List<Unit> = emptyList()
+    val units: List<RentalUnit> = emptyList()
+
 )
